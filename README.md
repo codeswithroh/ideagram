@@ -1,12 +1,14 @@
 # Ideagram
 
-A Claude Code / Cursor / Windsurf skill that turns a concept into a **beautiful, on-brand unDraw-style illustration** — by matching it to a real unDraw illustration and recoloring it to your brand, so the output has genuine illustrator quality instead of a hand-drawn approximation.
+A Claude Code / Cursor / Windsurf skill that turns a concept into a **beautiful, on-brand illustration** — either by **generating** an original modern-flat editorial illustration with an image model (steered by a rigorous style system), or by **recoloring** a real unDraw illustration to your brand.
 
-## The realization behind it
+## Two paths
 
-The earlier version of this skill tried to *draw* illustrations from geometric primitives. It produced pictograms — no finesse, no scene, nothing like unDraw. The reason is simple: unDraw's figures are dozens of hand-placed bezier anchors drawn by a professional illustrator. An LLM generating path coordinates blind cannot reach that quality, and pretending otherwise wastes everyone's time.
+**Path A — Generate (the ceiling).** With an image-generation tool available, ideagram creates an original illustration for *any* concept, steered by a full style system: a Style DNA (with an explicit anti-slop "never" list), composition patterns, a fresh-metaphor recipe, a prompt template, and a QA pass. This is the higher-quality, unbounded path — a custom, premium, on-brand image for whatever the brief is. It requires an image tool; without one, use Path B.
 
-So this skill doesn't draw. It **reuses the real path data**: match a concept to the right real unDraw illustration, then recolor it to your brand accent (swapping only unDraw's purple, leaving every skin tone, hair, and garment exactly as drawn). The output is genuinely illustrator-grade because it *is* the illustrator's work — just made yours. When no single illustration fits, it composes whole real components (a figure, a device, a background panel) into a new scene.
+**Path B — Recolor real unDraw (reliable, no image tool).** Match a concept to a real unDraw illustration in your local library and recolor only its purple accent to your brand, leaving skin/hair/clothing exactly as the illustrator drew them. Genuine illustrator quality, exact and reliable, but bounded by what's in the library.
+
+The generation path's craft was learned from studying the excellent [ian-xiaohei-illustrations](https://github.com/helloianneo/ian-xiaohei-illustrations) skill, whose quality comes from a rigorous style system driving an image model — not from drawing SVG. Ideagram applies that method to a clean modern-editorial aesthetic.
 
 ## How sourcing works (and the licensing)
 
@@ -27,9 +29,13 @@ Drop the `ideagram/` folder into your skills directory. Python 3 only; no keys, 
 ideagram/
 ├── SKILL.md                          — the workflow, read first
 ├── references/
-│   ├── undraw-anatomy.md             — dissection of real unDraw files: palette, structure, the reuse technique
-│   ├── style-contract.md             — only for the no-library fallback (generated primitives)
-│   └── metaphor-library.md           — only for the no-library fallback
+│   ├── style-dna.md                  — Path A: the visual contract for every generated image (+ anti-slop list)
+│   ├── composition-patterns.md       — Path A: structures + the fresh-metaphor recipe + scene-building
+│   ├── prompt-template.md            — Path A: the image-gen prompt template + iteration/edit prompts
+│   ├── qa-checklist.md               — Path A: post-generation quality gate
+│   ├── undraw-anatomy.md             — Path B: dissection of real unDraw files + the reuse technique
+│   ├── style-contract.md             — legacy no-image/no-library fallback (generated primitives)
+│   └── metaphor-library.md           — legacy fallback
 ├── scripts/
 │   ├── recolor_undraw.py             — recolor a real unDraw illo's accent to a brand color (the workhorse)
 │   ├── extract_component.py          — lift a whole figure/device/panel out for composing a new scene
