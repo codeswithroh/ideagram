@@ -2,21 +2,23 @@
 
 The single hardest part of this whole skill isn't drawing — it's picking *what to draw*. Given a paragraph of content, the temptation is to try to depict everything in it. Don't. Pick the one concrete object or scene that a viewer would recognize in under a second, even with zero context. This file is a starting lookup for that translation; treat it as scaffolding, not an exhaustive catalog — extend it as new concepts come up.
 
+Every row below defaults to **figure + prop together**, per `style-contract.md`'s "default to including a human figure" rule — `figure-pointing.svg` is the usual choice since its gesture reads naturally as presenting/explaining whatever the prop represents. Treat the "prop alone" variant as the exception, for cases where the output needs to work as a small inline icon rather than a scene.
+
 | Abstract concept | Concrete visual metaphor | Primitives to compose |
 |---|---|---|
-| Idea / innovation / brainstorming | A lit lightbulb | `prop-lightbulb.svg`, optionally + `figure-standing.svg` holding/looking at it |
-| Security / privacy / protection | A shield with a checkmark | `prop-shield.svg` |
-| Communication / feedback / conversation | A speech bubble | `prop-speech-bubble.svg`, optionally two figures facing each other |
-| Growth / progress / analytics / success metrics | An upward bar chart | `prop-chart-bar.svg` |
-| Email / messaging / notifications | An envelope | `prop-envelope.svg` |
-| Speed / launch / momentum / going live | A rocket | `prop-rocket.svg` |
-| Remote work / focus / desk work / building something | A figure at a desk with a laptop | `figure-sitting-desk.svg` |
-| A single user / person / individual contributor | A standing figure | `figure-standing.svg` |
-| Collaboration / teamwork | Two `figure-standing.svg` instances, mirrored toward each other (see `style-contract.md`'s mirroring note — a plain side-by-side placement doesn't read as "facing"), optionally with a shared object (chart, speech bubble) between them | multiple figures + one shared prop |
+| Idea / innovation / brainstorming | A figure gesturing toward a lit lightbulb | `figure-pointing.svg` + `prop-lightbulb.svg` |
+| Security / privacy / protection | A figure gesturing toward a shield with a checkmark | `figure-pointing.svg` + `prop-shield.svg` |
+| Communication / feedback / conversation | A figure gesturing toward a speech bubble, or two figures facing each other with a bubble between them | `figure-pointing.svg` + `prop-speech-bubble.svg` |
+| Growth / progress / analytics / success metrics | A figure gesturing toward an upward bar chart | `figure-pointing.svg` + `prop-chart-bar.svg` |
+| Email / messaging / notifications | A figure gesturing toward (or a `figure-standing.svg` holding) an envelope | `figure-pointing.svg` + `prop-envelope.svg` |
+| Speed / launch / momentum / going live | A figure gesturing toward a rocket | `figure-pointing.svg` + `prop-rocket.svg` |
+| Remote work / focus / desk work / building something | A figure already sitting at a desk with a laptop — the figure is built into this primitive, no separate pairing needed | `figure-sitting-desk.svg` |
+| A single user / person / individual contributor | A standing figure alone | `figure-standing.svg` |
+| Collaboration / teamwork | Two `figure-standing.svg` instances, mirrored toward each other (see `style-contract.md`'s mirroring note — a plain side-by-side placement doesn't read as "facing"), with a shared object (chart, speech bubble) between them | multiple figures + one shared prop |
 | Real-time co-editing / live presence / multiple people in one document | Two figures flanking a `prop-document.svg`, with two small cursor markers (a simple triangle + a small rounded-rect "nameplate") pointing at different lines of text — use the fill-vs-outline technique from `style-contract.md` to make the two cursors distinguishable without a third color | 2× `figure-standing.svg` (mirrored) + `prop-document.svg` + two small hand-built cursor markers |
-| Writing / content / documents / notes | A document with visible text lines | `prop-document.svg` |
+| Writing / content / documents / notes | A figure gesturing toward a document with visible text lines | `figure-pointing.svg` + `prop-document.svg` |
 | Onboarding / getting started | A standing figure + an open envelope or a lit path forward — pick whichever the actual product does (welcome email vs. guided steps) | context-dependent |
-| Data / cloud / storage | Not yet in the primitive kit — until a dedicated primitive exists, compose from simple shapes (rounded rectangle stack) following the style contract rather than skipping the concept |
+| Data / cloud / storage | Not yet in the primitive kit — until a dedicated primitive exists, compose from simple shapes (rounded rectangle stack) following the style contract rather than skipping the concept, and still pair it with a figure by default |
 
 ## How to pick when nothing matches directly
 

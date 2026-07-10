@@ -26,7 +26,9 @@ Read `references/metaphor-library.md`. Reduce the input to one sentence ("this i
 
 ### Step 2 — Compose from primitives, don't freehand a new figure
 
-Check `assets/primitives/` for an existing figure/prop that fits the chosen metaphor. Compose by placing primitives in a shared canvas using `<g transform="translate(x y)">` wrappers around each primitive's contents, not by editing their internal path coordinates — this keeps every primitive independently reusable for the next illustration.
+**Default to pairing a human figure with the concept's prop, not a bare object alone.** This is what makes the result read as unDraw-style — their illustrations are almost always a character actively doing something with the idea, not the idea floating by itself. `figure-pointing.svg` (gesturing/presenting) is the usual pairing for a standalone concept prop; `figure-standing.svg` and `figure-sitting-desk.svg` cover cases where the figure itself is the point (a single user, someone at work). See `references/metaphor-library.md` for the default pairing per concept — a figure-less prop is the exception (e.g. when the deliverable needs to work as a small inline icon), not the starting point.
+
+Check `assets/primitives/` for existing figures/props that fit the chosen metaphor. Compose by placing primitives in a shared canvas using `<g transform="translate(x y)">` wrappers around each primitive's contents, not by editing their internal path coordinates — this keeps every primitive independently reusable for the next illustration. Use `scale(-1,1)` mirroring (see `references/style-contract.md`) when a scene needs a figure to face a particular direction rather than stand identically to its neighbor.
 
 If nothing in the library fits, build new shapes following `references/style-contract.md` exactly (two colors, flat fills, rounded human-made objects, circles/capsules for organic shapes) rather than freehand human anatomy — and consider adding a genuinely reusable new primitive to the library if this concept is likely to come up again.
 
@@ -62,7 +64,7 @@ Run `scripts/validate_assets.py` against the finished SVG. This catches malforme
 
 ## Assets
 
-`assets/primitives/` — the starter figure/prop library (2 figures, 7 props; see `references/metaphor-library.md` for the full mapping). This is meant to grow: if a concept keeps needing a new object that doesn't exist yet, build it once following the style contract and add it here rather than redrawing it from scratch on every future request.
+`assets/primitives/` — the starter figure/prop library (3 figures — standing, sitting-at-desk, pointing/gesturing — and 7 props; see `references/metaphor-library.md` for the full mapping). `figure-pointing.svg` is the default pairing for standalone concept props, since a figure actively gesturing toward the idea is what makes a scene read as "explaining something" rather than "a stock icon." This is meant to grow: if a concept keeps needing a new object that doesn't exist yet, build it once following the style contract and add it here rather than redrawing it from scratch on every future request.
 
 ## Honesty
 

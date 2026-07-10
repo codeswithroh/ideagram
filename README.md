@@ -29,7 +29,7 @@ ideagram/
 │   ├── validate_assets.py            — SVG well-formedness validation
 │   ├── recolor_svg.py                — recolor a composed illustration to a brand accent color
 │   └── export_png.py                 — flatten to PNG at standard social/presentation sizes
-└── assets/primitives/                — starter figure/prop library (2 figures, 7 props), composable via <g transform>
+└── assets/primitives/                — starter figure/prop library (3 figures, 7 props), composable via <g transform>
 ```
 
 ## What this style is, honestly
