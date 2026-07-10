@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 design/export/
+# never redistribute unDraw source art in this repo — it lives in the user's local library (~/.ideagram/undraw)
+undraw_*.svg
+**/undraw-library/

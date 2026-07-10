@@ -1,71 +1,79 @@
 ---
 name: ideagram
-description: Turn a concept, feature description, blog post, or pitch into a single clean, shareable explanatory illustration in an unDraw-like flat style — ready to post on social media, drop into a landing page, or show someone to explain an idea instantly, without needing design skill or a separate design tool. Use this whenever the user asks to "make an illustration," "create a graphic," "visualize this concept," "explain this visually," wants something "unDraw-style," "Storyset-style," or a simple flat illustration for a feature/blog/announcement, or says an idea is hard to explain in words and needs a picture instead. Trigger even if they don't name a style — "make something to explain X" or "I need a graphic for this tweet about Y" both qualify.
+description: Turn a concept, feature description, blog post, or pitch into a single beautiful, on-brand unDraw-style illustration — by matching it to a real unDraw illustration and recoloring it to the brand accent, so the output has genuine illustrator quality, not a hand-drawn approximation. Use whenever the user asks to "make an illustration," "create a graphic," "visualize this concept," "explain this visually," wants something "unDraw-style" or "Storyset-style," needs a hero/feature/blog illustration, or says an idea needs a picture. Trigger even if they don't name a style — "make something to explain X" or "I need a graphic for this tweet" both qualify.
 ---
 
 # Ideagram
 
-## What this is, and isn't
+## The core idea
 
-Given a piece of content — a feature description, a paragraph, a pitch — produce **one** clean, flat, two-color SVG illustration that explains the single core idea at a glance. Optimized for: posting on social media, embedding on a landing page, or showing someone cold with zero verbal explanation needed.
+Produce **one** beautiful unDraw-style illustration for a concept, on-brand. The key realization behind this skill: an LLM cannot hand-draw illustration at unDraw's quality — those figures are dozens of hand-placed bezier anchors drawn by a professional illustrator, and freehand-generating path coordinates produces crude pictograms, not art. The quality is *in the real path data*.
 
-This is not a photorealistic image generator and not a general-purpose art tool. It's specifically about the "explain one idea, instantly, simply" register that sites like unDraw popularized — restraint is the entire point. If the request calls for something else (photoreal, highly detailed, brand-specific illustrated characters with a distinct hand-drawn style), say so rather than forcing this system to do it badly.
+So this skill does **not draw**. It **reuses real unDraw illustrations** — matching a concept to the right one and recoloring it to the brand accent (and, when needed, composing whole real components into a new scene). The output is genuinely illustrator-grade because it *is* the illustrator's work, just made on-brand. Read `references/undraw-anatomy.md` once — it's the dissection of how these files are built and why this approach works.
 
-## Why this is built the way it is
+## Setup: a local unDraw library
 
-Two things reliably go wrong when an LLM is asked to "draw an unDraw-style illustration" without a system behind it:
+This skill reads real unDraw SVGs from a **local library folder** the user maintains — it does not bundle or redistribute unDraw's files (their license bars compiling their assets into a redistributed collection; downloading them for your own use is free and needs no attribution).
 
-1. **It tries to depict too much.** Given a paragraph of content, the instinct is to cram in every detail mentioned. The actual unDraw/Storyset register works because it depicts exactly one idea, with one clear focal point — see `references/metaphor-library.md` for how to pick that one idea deliberately instead of by instinct.
-2. **Freehand human figures go wrong.** Hand-authoring SVG path data for a person from scratch, per request, is where proportions get mangled — a limb detached from a torso, a head the wrong size. `assets/primitives/` bundles a small library of pre-built, already-verified figures and props (rendered and checked in a browser, not just written blind) — compose scenes from these instead of drawing new figures from raw paths each time.
+- Default library location: `~/.ideagram/undraw/` — create it and drop `.svg` files there.
+- The user populates it by downloading illustrations from [undraw.co/illustrations](https://undraw.co/illustrations) (free, no attribution, unlimited). A folder like `~/Downloads/undraw` also works — just point the workflow at wherever the SVGs are.
+- If **no library exists**, tell the user plainly: the best output needs a few real unDraw SVGs in the library, and point them at undraw.co to grab some (30 seconds). Only fall back to the crude generated-primitive path (`references/style-contract.md`) if they can't, and be honest that it's a large quality drop.
 
 ## Workflow
 
-### Step 1 — Distill the content to one concrete metaphor
+### Step 1 — Distill the concept
 
-Read `references/metaphor-library.md`. Reduce the input to one sentence ("this is fundamentally about ___"), then map that to one concrete, recognizable object or scene — not an attempt to depict the whole input. If the content genuinely contains two unrelated ideas, that's two illustrations, not one crowded scene; say so rather than cramming both in.
+Reduce the input to one sentence — "this is fundamentally about ___" — and a few keywords (e.g. "team collaboration," "security," "analytics dashboard," "mobile app"). This is what you'll match against the library. If the content is really two ideas, that's two illustrations.
 
-### Step 2 — Compose from primitives, don't freehand a new figure
+### Step 2 — Match to the best illustration in the library
 
-**Default to pairing a human figure with the concept's prop, not a bare object alone.** This is what makes the result read as unDraw-style — their illustrations are almost always a character actively doing something with the idea, not the idea floating by itself. `figure-pointing.svg` (gesturing/presenting) is the usual pairing for a standalone concept prop; `figure-standing.svg` and `figure-sitting-desk.svg` cover cases where the figure itself is the point (a single user, someone at work). See `references/metaphor-library.md` for the default pairing per concept — a figure-less prop is the exception (e.g. when the deliverable needs to work as a small inline icon), not the starting point.
+List the library's SVGs (their filenames are descriptive, e.g. `undraw_tech-keynote_ytf3.svg`, `undraw_content-team_1p7b.svg`). Pick the one whose subject best fits the concept's keywords. If several fit, prefer the one whose *scene* matches (a dashboard concept → an illustration with a screen/chart; a teamwork concept → one with multiple figures). If nothing in the library is close, say so and either ask the user to grab a fitting one from undraw.co or fall back (Step 5).
 
-Check `assets/primitives/` for existing figures/props that fit the chosen metaphor. Compose by placing primitives in a shared canvas using `<g transform="translate(x y)">` wrappers around each primitive's contents, not by editing their internal path coordinates — this keeps every primitive independently reusable for the next illustration. Use `scale(-1,1)` mirroring (see `references/style-contract.md`) when a scene needs a figure to face a particular direction rather than stand identically to its neighbor.
+### Step 3 — Recolor to the brand
 
-If nothing in the library fits, build new shapes following `references/style-contract.md` exactly (two colors, flat fills, rounded human-made objects, circles/capsules for organic shapes) rather than freehand human anatomy — and consider adding a genuinely reusable new primitive to the library if this concept is likely to come up again.
+If the user has a brand/accent color, run:
 
-### Step 3 — Apply the style contract
+```
+python3 scripts/recolor_undraw.py <matched>.svg --accent "#<brand>" --out design/<name>.svg
+```
 
-Read `references/style-contract.md` before finalizing. The short version: exactly two colors (one near-black base, one accent — default `#262631` / `#6C5CE7`, but the accent should become the caller's brand color when they have one), no gradients or shadows, one clear focal point carrying the accent.
+This swaps only unDraw's `#6c63ff` accent family for the brand color, leaving every skin tone, hair, clothing, and neutral exactly as drawn — verified on real multi-figure scenes. If the illustration uses a secondary accent (green `#8ed16f`, pink `#ff6584`) that should also change, add `--also "#8ed16f:#<hex>"`. If the user has no brand color, skip this — unDraw's purple is a fine default.
 
-If the user has a brand/accent color, use `scripts/recolor_svg.py --accent "#hex" --preserve-dark` on the composed SVG rather than hand-editing color values — it's already handled correctly, including leaving the base/outline color untouched.
+### Step 4 — (Optional) Compose a custom scene from real components
 
-### Step 4 — Validate before delivering
+Only when no single library illustration fits and you need to build one:
 
-Run `scripts/validate_assets.py` against the finished SVG. This catches malformed XML that reads fine as text but renders as a broken image in strict browsers (the most common case: a `--` inside a `<!-- -->` comment) — invisible unless actually parsed, so don't skip it.
+- Extract whole components (a figure, a device, a background panel) from source illustrations with `scripts/extract_component.py source.svg --list` then `--match "translate(...)" --out part.svg` (see `references/undraw-anatomy.md`).
+- Assemble them into one `<svg>` as a real **scene**, not a floating figure: a background element (panel/screen), the concept's midground device, then the figure interacting with it, plus a ground shadow. This scene-building is what the old primitive approach missed.
+- Place each component with a `<g transform="translate() scale()">`; render and use `getBBox()` to size/position accurately. Reuse *whole* components — recombining sub-limbs is fragile (see anatomy doc).
+- Recolor the finished composition (Step 3).
 
-### Step 5 — Deliver in the format the use case actually needs
+### Step 5 — Fallback only if there's no usable library
 
-- **Web/landing page**: the SVG file directly — smallest, crispest, infinitely recolorable.
-- **Social media / anywhere raster is required**: `scripts/export_png.py illustration.svg --out design/export/` renders flattened PNGs at standard social/presentation dimensions (1080×1080 square, 1200×630 landscape/OG-card, 1920×1080 presentation), centered without distorting the aspect ratio. Requires `cairosvg` (`pip install cairosvg`) *and* the system cairo library (`brew install cairo` on macOS, `sudo apt install libcairo2` on Debian/Ubuntu) — if either is missing, the script says so plainly rather than failing silently, and the SVG remains fully usable on its own in the meantime (most platforms and every browser accept SVG natively).
+If the user genuinely has no unDraw library and won't create one, the generated-primitive path (`references/style-contract.md` + `assets/primitives/`) still exists — but it produces simple flat pictograms, not illustrator-grade art. Use it only as a last resort and say plainly that grabbing a couple of real unDraw SVGs would look dramatically better.
+
+### Step 6 — Validate and deliver
+
+- `python3 scripts/validate_assets.py <final>.svg` — catches malformed SVG (e.g. a `--` inside a comment) that renders as a broken image.
+- Deliver the SVG directly for web (crisp, tiny, recolorable). For social/raster, `scripts/export_png.py <final>.svg --out design/export/` renders standard sizes (needs cairosvg + system cairo; degrades honestly if absent — the SVG works everywhere regardless).
 
 ## Reference files
 
 | File | Read when |
 |---|---|
-| `references/metaphor-library.md` | Step 1 — choosing what to actually depict |
-| `references/style-contract.md` | Step 3 — applying color/shape/composition rules |
+| `references/undraw-anatomy.md` | Always, first — the palette, structure, and the reuse technique this skill is built on |
+| `references/style-contract.md` | Only for the Step 5 fallback (generated primitives, no library) |
+| `references/metaphor-library.md` | Only for the Step 5 fallback — concept → simple shape mapping |
 
 ## Scripts
 
 | Script | Purpose |
 |---|---|
-| `scripts/recolor_svg.py` | Recolor a composed illustration's accent color to a brand hex, preserving the base/outline. |
-| `scripts/validate_assets.py` | Verify the finished SVG is well-formed before delivering it. |
-| `scripts/export_png.py` | Export flattened PNGs at standard social/presentation sizes (needs cairosvg + system cairo). |
-
-## Assets
-
-`assets/primitives/` — the starter figure/prop library (3 figures — standing, sitting-at-desk, pointing/gesturing — and 7 props; see `references/metaphor-library.md` for the full mapping). `figure-pointing.svg` is the default pairing for standalone concept props, since a figure actively gesturing toward the idea is what makes a scene read as "explaining something" rather than "a stock icon." This is meant to grow: if a concept keeps needing a new object that doesn't exist yet, build it once following the style contract and add it here rather than redrawing it from scratch on every future request.
+| `scripts/recolor_undraw.py` | Recolor a real unDraw illustration's accent to a brand color, preserving skin/ink/clothing/neutrals. The workhorse. |
+| `scripts/extract_component.py` | Lift a whole figure/device/panel out of a source unDraw SVG for composing a new scene. |
+| `scripts/validate_assets.py` | Verify the finished SVG is well-formed before delivering. |
+| `scripts/export_png.py` | Flatten to PNG at standard social/presentation sizes (needs cairosvg + system cairo). |
 
 ## Honesty
 
-If the requested concept doesn't map cleanly to anything in the metaphor library and the resulting illustration is a rougher first attempt at a new visual, say so rather than presenting it as equally polished as the pre-built primitives. And don't claim PNG export happened if cairo wasn't available and the deliverable is SVG-only — say what format was actually produced.
+Say what actually happened. If you recolored a real unDraw illustration, that's the honest and best case — say so. If you fell back to generated primitives because there was no library, say that plainly and note the quality gap. Never present a hand-drawn pictogram as if it were unDraw-quality. And respect the sourcing model: reuse real unDraw art from the user's local library for their own sites; don't redistribute unDraw's files into a public repo.
